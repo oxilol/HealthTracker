@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Solid Dark Box with slightly rounded corners typical for icons -->
+  <rect width="512" height="512" rx="112" fill="#09090b" />
+  
+  <!-- Outer subtle circular tracking ring -->
+  <circle cx="256" cy="256" r="180" stroke="rgba(99, 102, 241, 0.12)" stroke-width="8" />
+
+  <!-- Geometric glowing neon pulse representing life/fitness/tracking -->
+  <!-- Left Flat -> Peak 1 -> Deep Trough -> Extreme Peak 2 -> Flat Right -->
+  <path 
+    d="M 120 256 L 190 256 L 220 180 L 256 360 L 290 140 L 320 256 L 392 256" 
+    stroke="url(#neon-gradient)" 
+    stroke-width="20" 
+    stroke-linecap="round" 
+    stroke-linejoin="round" 
+    style="filter: drop-shadow(0px 0px 20px rgba(99, 102, 241, 0.5));"
+  />
+
+  <defs>
+    <!-- Smooth Neon Pulse Gradient: Cyan to Indigo to Purple -->
+    <linearGradient id="neon-gradient" x1="120" y1="256" x2="392" y2="256" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="50%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#a855f7" />
+    </linearGradient>
+  </defs>
+</svg>
