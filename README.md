@@ -153,7 +153,12 @@ health-tracker/
 ---
 
 ### Santé
-![Métriques Apple Health](./doc/screenshots/health-page.png)
+| | |
+|---|---|
+| ![Métriques Apple Health](./doc/screenshots/health-page.png) | ![Calendrier santé](./doc/screenshots/health-page2.png) |
+| Métriques du jour (pas, distance, étages, poids) | Calendrier interactif |
+
+> 💡 Chaque section de l'application (Nutrition, Entraînement, Santé) possède son propre calendrier interactif permettant de naviguer vers n'importe quel jour passé et consulter les données correspondantes.
 
 ---
 
