@@ -9,17 +9,24 @@ interface TemplateListProps {
   onEdit: (template: WorkoutTemplate) => void;
   onDelete: (id: string) => Promise<void>;
   hideStartButton?: boolean;
+  locationFiltered?: boolean;
 }
 
-export function TemplateList({ templates, onStart, onEdit, onDelete, hideStartButton }: TemplateListProps) {
+export function TemplateList({ templates, onStart, onEdit, onDelete, hideStartButton, locationFiltered }: TemplateListProps) {
   if (templates.length === 0) {
     return (
       <div className="text-center py-10">
         <div className="w-16 h-16 bg-neutral-900 border border-neutral-800 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-          <span className="text-2xl">💪</span>
+          <span className="text-2xl">{locationFiltered ? '📍' : '💪'}</span>
         </div>
-        <p className="text-neutral-400 text-sm">No workout templates yet</p>
-        <p className="text-neutral-600 text-xs mt-1">Create a template to get started</p>
+        <p className="text-neutral-400 text-sm">
+          {locationFiltered ? 'No templates for this location' : 'No workout templates yet'}
+        </p>
+        <p className="text-neutral-600 text-xs mt-1">
+          {locationFiltered
+            ? 'Tap the settings gear → Create Template to add one for this gym'
+            : 'Create a template to get started'}
+        </p>
       </div>
     );
   }
