@@ -5,10 +5,9 @@ import { WorkoutTemplate, TemplateExercise } from '../../../types/workout';
 /* Hook to manage the user's gym workout templates.
    Calls /api/workouts/templates.
 */
-export function useWorkoutTemplates() {
+export function useWorkoutTemplates(locationId?: string | null) {
   const [templates, setTemplates] = useState<WorkoutTemplate[]>([]);
   const [loading, setLoading] = useState(true);
-
 
   const fetchTemplates = useCallback(async () => {
     setLoading(true);
@@ -16,7 +15,11 @@ export function useWorkoutTemplates() {
       const token = await getToken();
       if (!token) return;
 
-      const res = await fetch('/api/workouts/templates', {
+      const url = locationId
+        ? `/api/workouts/templates?location_id=${locationId}`
+        : '/api/workouts/templates';
+
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
@@ -27,18 +30,18 @@ export function useWorkoutTemplates() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [locationId]);
 
   useEffect(() => { fetchTemplates(); }, [fetchTemplates]);
 
-  const createTemplate = async (name: string, exercises: { exercise_name: string; exercise_order: number }[]) => {
+  const createTemplate = async (name: string, exercises: { exercise_name: string; exercise_order: number }[], locationId?: string | null) => {
     const token = await getToken();
     if (!token) return null;
 
     const res = await fetch('/api/workouts/templates', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, exercises }),
+      body: JSON.stringify({ name, exercises, ...(locationId ? { location_id: locationId } : {}) }),
     });
     if (!res.ok) return null;
 

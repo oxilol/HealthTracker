@@ -4,6 +4,7 @@ import { getToken } from '../../../lib/getToken';
 interface DaySummary {
   date: string;
   sessionCount: number;
+  locationIds: (string | null)[];
 }
 
 /* Hook to load gym session counts per day for a given month.
