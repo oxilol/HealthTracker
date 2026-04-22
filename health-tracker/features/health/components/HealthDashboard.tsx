@@ -17,11 +17,15 @@ export function HealthDashboard({ metrics, weight, lastLoggedWeight, logWeight, 
   if (loading) {
     return (
       <div className="space-y-4 animate-pulse">
-        <div className="h-32 bg-neutral-900 rounded-3xl w-full" />
+        {/* Activity card */}
+        <div className="h-36 bg-neutral-900 rounded-3xl w-full" />
+        {/* Distance + Flights grid */}
         <div className="grid grid-cols-2 gap-4">
           <div className="h-28 bg-neutral-900 rounded-3xl" />
           <div className="h-28 bg-neutral-900 rounded-3xl" />
         </div>
+        {/* Weight card */}
+        <div className="h-32 bg-neutral-900 rounded-3xl w-full" />
       </div>
     );
   }
