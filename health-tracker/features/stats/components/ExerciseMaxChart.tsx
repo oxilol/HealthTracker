@@ -5,8 +5,8 @@ import { ResponsiveContainer, ComposedChart, Area, Line, XAxis, YAxis, Tooltip, 
 import { useExerciseMaxes } from '../hooks/useExerciseMaxes';
 import { DailyStats } from '../hooks/useStats';
 
-export function ExerciseMaxChart({ days, stats }: { days: number, stats: DailyStats[] }) {
-  const { exercises, selectedExercise, setSelectedExercise, maxData, loading } = useExerciseMaxes(days);
+export function ExerciseMaxChart({ days, stats, locationId }: { days: number, stats: DailyStats[], locationId?: string | null }) {
+  const { exercises, selectedExercise, setSelectedExercise, maxData, loading } = useExerciseMaxes(days, locationId);
   const [showCalories, setShowCalories] = useState(false);
 
   if (loading) {

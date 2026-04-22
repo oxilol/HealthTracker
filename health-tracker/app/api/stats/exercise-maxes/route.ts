@@ -11,14 +11,21 @@ export async function GET(req: NextRequest) {
   if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const days = parseInt(req.nextUrl.searchParams.get('days') || '30', 10);
+  const locationId = req.nextUrl.searchParams.get('location_id');
   const today = todayLocalStr();
   const isoStart = addDays(today, -days);
 
-  const { data: sessions } = await auth.supabase
+  let query = auth.supabase
     .from('workout_sessions')
     .select('id, workout_date')
     .eq('user_id', auth.userId)
     .gte('workout_date', isoStart);
+
+  if (locationId) {
+    query = query.eq('location_id', locationId);
+  }
+
+  const { data: sessions } = await query;
 
   if (!sessions || sessions.length === 0) {
     return NextResponse.json({ sets: [] });

@@ -3,20 +3,23 @@ import { getAuthClient } from '../../../lib/apiAuth';
 
 export const dynamic = 'force-dynamic';
 
-// GET: Returns the user's profile preferences (only step_goal for now)
+// GET: Returns the user's profile preferences (step_goal, current_location_id)
 export async function GET(req: NextRequest) {
   const auth = await getAuthClient(req);
   if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { data, error } = await auth.supabase
     .from('profiles')
-    .select('step_goal')
+    .select('step_goal, current_location_id')
     .eq('id', auth.userId)
     .maybeSingle();
 
   if (error) return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
 
-  return NextResponse.json({ step_goal: data?.step_goal ?? 10000 });
+  return NextResponse.json({
+    step_goal: data?.step_goal ?? 10000,
+    current_location_id: data?.current_location_id ?? null,
+  });
 }
 
 // PATCH: Updates user profile preferences
@@ -27,9 +30,14 @@ export async function PATCH(req: NextRequest) {
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
 
-  const updates: Record<string, number> = {};
+  const updates: Record<string, unknown> = {};
+
   if (typeof body.step_goal === 'number' && body.step_goal > 0) {
     updates.step_goal = body.step_goal;
+  }
+  // Allow setting current_location_id to a string or null
+  if ('current_location_id' in body) {
+    updates.current_location_id = body.current_location_id ?? null;
   }
 
   if (Object.keys(updates).length === 0) {

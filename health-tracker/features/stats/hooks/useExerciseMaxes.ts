@@ -10,7 +10,7 @@ export interface ExerciseMaxData {
 /* Hook to load per-exercise max weight history over a date range.
    Calls /api/stats/exercise-maxes.
 */
-export function useExerciseMaxes(days: number = 30) {
+export function useExerciseMaxes(days: number = 30, locationId?: string | null) {
   const [exercises, setExercises] = useState<string[]>([]);
   const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
   const [maxData, setMaxData] = useState<ExerciseMaxData[]>([]);
@@ -26,7 +26,10 @@ export function useExerciseMaxes(days: number = 30) {
         const session_token = await getToken();
         if (!session_token) return;
 
-        const res = await fetch(`/api/stats/exercise-maxes?days=${days}`, {
+        const params = new URLSearchParams({ days: String(days) });
+        if (locationId) params.set('location_id', locationId);
+
+        const res = await fetch(`/api/stats/exercise-maxes?${params.toString()}`, {
           headers: { Authorization: `Bearer ${session_token}` },
         });
         if (!res.ok) throw new Error(`Request failed: ${res.status}`);
@@ -34,11 +37,12 @@ export function useExerciseMaxes(days: number = 30) {
         const sets = json.sets || [];
 
         setRawSets(sets);
+        setSelectedExercise(null);
 
         const unique = Array.from(new Set(sets.map((s: any) => s.exercise_name))).sort() as string[];
         setExercises(unique);
 
-        if (unique.length > 0 && !selectedExercise) {
+        if (unique.length > 0) {
           setSelectedExercise(unique[0]);
         }
       } catch (err) {
@@ -49,7 +53,7 @@ export function useExerciseMaxes(days: number = 30) {
     }
 
     fetchSets();
-  }, [days]);
+  }, [days, locationId]);
 
   // Derive maxData whenever `selectedExercise` or raw data changes
   useEffect(() => {
