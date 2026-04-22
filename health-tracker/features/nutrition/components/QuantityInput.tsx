@@ -49,7 +49,7 @@ export function QuantityInput({ food, onConfirm, onCancel }: QuantityInputProps)
 
   return (
     <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-5 space-y-4 relative overflow-hidden shadow-lg">
-      <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-emerald-500/10 blur-3xl rounded-full pointer-events-none" />
+
       <div className="relative z-10 w-full h-full space-y-4">
         <div>
           <h3 className="text-base font-semibold text-neutral-200 truncate">{food.name}</h3>
