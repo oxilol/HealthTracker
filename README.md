@@ -132,9 +132,36 @@ health-tracker/
 
 ---
 
-## Démo de l'application
+## Screenshots
 
-![Démo de l'application](./doc/demo.gif)
+### Nutrition
+| | |
+|---|---|
+| ![Suivi nutritionnel quotidien](./doc/screenshots/nutrition-page.png) | ![Recherche d'aliments](./doc/screenshots/nutrition-page2.png) |
+| Suivi journalier — anneau de progression et logs | Recherche dans la base USDA |
+
+![Quick add et mes repas](./doc/screenshots/nutrition-page3.png)
+
+---
+
+### Entraînement
+| | |
+|---|---|
+| ![Templates d'entraînement](./doc/screenshots/workout-page.png) | ![Session en cours](./doc/screenshots/workout-session.png) |
+| Sélection du template | Session active avec sets et performance précédente |
+
+---
+
+### Santé
+![Métriques Apple Health](./doc/screenshots/health-page.png)
+
+---
+
+### Statistiques
+| | |
+|---|---|
+| ![Graphiques comparatifs](./doc/screenshots/stats-page1.png) | ![Évolution des performances](./doc/screenshots/stats-page2.png) |
+| Comparaison dynamique de métriques | Évolution par exercice |
 
 ---
 
