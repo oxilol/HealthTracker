@@ -1,37 +1,31 @@
 import { useEffect, useState } from 'react';
 import { useHealthSyncToken } from '../hooks/useHealthSyncToken';
 import { useHealthStore } from '../../../store/healthStore';
+import { useStepGoal } from '../hooks/useStepGoal';
 
-const STEP_GOAL_KEY = 'step_goal';
-const DEFAULT_STEP_GOAL = 10000;
 
-// TODO: move to DB
-function readStepGoal(): number {
-  if (typeof window === 'undefined') return DEFAULT_STEP_GOAL;
-  const v = parseInt(localStorage.getItem(STEP_GOAL_KEY) || '', 10);
-  return isNaN(v) || v <= 0 ? DEFAULT_STEP_GOAL : v;
-}
 
 export function HealthSyncSettingsModal() {
   const { showSettingsModal, setShowSettingsModal } = useHealthStore();
   const { token, loading, error, fetchToken, generateNewToken } = useHealthSyncToken();
+  const { stepGoal, updateStepGoal } = useStepGoal();
 
   const [stepGoalInput, setStepGoalInput] = useState('');
 
   useEffect(() => {
     if (showSettingsModal) {
       fetchToken();
-      setStepGoalInput(String(readStepGoal()));
     }
   }, [showSettingsModal, fetchToken]);
 
-  // TODO: move to DB
+  useEffect(() => {
+    setStepGoalInput(String(stepGoal));
+  }, [stepGoal]);
+
   const saveStepGoal = (raw: string) => {
     const val = parseInt(raw, 10);
     if (!isNaN(val) && val > 0) {
-      localStorage.setItem(STEP_GOAL_KEY, String(val));
-      // Notify same-tab listeners (storage events only fire cross-tab)
-      window.dispatchEvent(new Event('storage'));
+      updateStepGoal(val);
     }
   };
 
