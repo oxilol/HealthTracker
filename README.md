@@ -1,12 +1,10 @@
-<div align="center">
-
 # Health Tracker
 
 **Une application mobile web complète pour suivre sa santé, sa nutrition et ses entraînements au quotidien.**
 
 <br/>
 
-> **Projet personnel** — Construit pour mon utilisation personnel, je voulais une application qui pouvait combiner tout les données que je voulais visualiser à la même endroit avec une interface qui me convient.
+**Projet personnel** — Construit pour mon utilisation personnel, je voulais une application qui pouvait combiner tout les données que je voulais visualiser à la même endroit avec une interface qui me convient.
 
 ---
 
@@ -58,10 +56,10 @@ En effet, toutes les applications existantes sur le marché sont bien dans certa
 L'application suit une architecture **feature-based** qui sépare clairement les responsabilités. Chaque domaine métier (santé, nutrition, workouts, stats) est autonome avec ses propres composants, hooks et logique.
 
 Architecture de l'application : 
-![Architecture de l'application](./docs/screenshots/architecture.png)
+![Architecture de l'application](./doc/screenshots/architecture.png)
 
 Flow de données des métriques santé (AppleHealth) : 
-![Health metriques flow](./docs/screenshots/architecture-healthdata.png)
+![Health metriques flow](./doc/screenshots/architecture-healthdata.png)
 
 
 ### Pourquoi cette architecture ?
@@ -136,7 +134,7 @@ health-tracker/
 
 ## Démo de l'application
 
-![Démo de l'application](./docs/demo.gif)
+![Démo de l'application](./doc/demo.gif)
 
 ---
 
