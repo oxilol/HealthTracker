@@ -22,7 +22,7 @@ En effet, toutes les applications existantes sur le marché sont bien dans certa
 |--------|---------------|
 | **Dashboard** | Vue hebdomadaire avec une navigation par semaine. Statistiques en fonction du nombre de pas effectués, des calories dépensées, du nombre d'entrainements et de la moyenne de calories. Barre de progression des journées en fonction des pas effectués/ de calories dépensées/ de protéines. |
 | **Nutrition** | Tracking quotidien des macros (protéines, glucides et lipides). Recherche dans la base de donnée USDA. Création de ses propres aliments et repas. Possibilité de faire un quick add. Anneau de progression animé. |
-| **Entraînement** | Deux modes : le **Gym** (muscu) et le **Cardio**. Templates d'entraînement réutilisables. Logging par sets avec la quantité de poids utilisée et le nombre de répétitions. Performance précédente affichée pour encourager la surcharge progressive. Carte avec la possibilité de swipe-to-delete les sets. |
+| **Entraînement** | Deux modes : le **Gym** (muscu) et le **Cardio**. Templates d'entraînement réutilisables. Logging par sets avec poids et répétitions. Performance précédente affichée pour encourager la surcharge progressive. **Gestion multi-salles (localisation)** pour scoper les templates, l'historique et les statistiques par salle d'entraînement. Carte avec possibilité de swipe-to-delete. |
 | **Santé** | Synchronisation des data Apple health : nombre de pas, énergie active, distance et étages. Poids corporel avec l'historique. Calendrier interactif. |
 | **Statistiques** | Graphiques avec Recharts sur 7 / 30 / 90 jours. Comparaison dynamique de deux métriques possibles entre elles (par exemple : poids vs calories, pas vs protéines...). Courbe d'évolution des performances par exercice. |
 | **Auth** | Inscription / connexion via Supabase Auth. Protection des routes côté client. Tokens JWT sur chaque appel API. |
@@ -90,6 +90,7 @@ health-tracker/
 │       ├── health/               # CRUD métriques santé + calendrier + poids
 │       ├── nutrition/            # CRUD logs nutrition + objectifs + repas
 │       ├── workouts/             # CRUD sessions gym + cardio + sets + templates
+│       ├── gym-locations/        # CRUD des différentes salles de sport (multi-sites)
 │       ├── foods/                # Recherche USDA
 │       ├── stats/                # Agrégation données pour graphiques
 │       ├── import/health-app/    # Endpoint de réception données HealthKit
@@ -110,6 +111,7 @@ health-tracker/
 │
 ├── store/                        # État global (Zustand)
 │   ├── workoutStore.ts           # UI state pour les modals d'entraînement
+│   ├── locationStore.ts          # State de la salle de sport (gym location) active
 │   ├── nutritionStore.ts         # UI state pour la recherche d'aliments
 │   ├── healthStore.ts            # UI state pour le modal de sync
 │   └── userStore.ts              # Profil utilisateur connecté
@@ -127,7 +129,8 @@ health-tracker/
     ├── health.ts                 # HealthMetrics, WeightLog
     ├── nutrition.ts              # Food, Meal, NutritionLog, NutritionGoals, SearchResultFood
     ├── workout.ts                # WorkoutTemplate, WorkoutSession, ExerciseSet
-    └── cardio.ts                 # CardioTemplate, CardioSession, CardioLog
+    ├── cardio.ts                 # CardioTemplate, CardioSession, CardioLog
+    └── gymLocation.ts            # GymLocation
 ```
 
 ---
