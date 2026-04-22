@@ -39,8 +39,12 @@ export function StatsDashboard() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20">
-          <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <div className="space-y-4 pb-12">
+          <div className="skeleton h-64 w-full rounded-3xl" />
+          <div className="skeleton h-64 w-full rounded-3xl" />
+          <div className="skeleton h-48 w-full rounded-3xl" />
+          <div className="skeleton h-48 w-full rounded-3xl" />
+          <div className="skeleton h-48 w-full rounded-3xl" />
         </div>
       ) : stats.length === 0 ? (
         <p className="text-center text-neutral-500 py-10">No data available for this range.</p>
