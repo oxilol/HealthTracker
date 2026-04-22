@@ -3,16 +3,25 @@ import { getAuthClient } from '../../../../lib/apiAuth';
 
 export const dynamic = 'force-dynamic';
 
-// GET /api/workouts/templates — returns all gym templates with their exercises, sorted by order
+// GET /api/workouts/templates — returns templates filtered by location_id if provided
 export async function GET(req: NextRequest) {
   const auth = await getAuthClient(req);
   if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { data, error } = await auth.supabase
+  const locationId = req.nextUrl.searchParams.get('location_id');
+
+  let query = auth.supabase
     .from('workout_templates')
     .select('*, exercises:template_exercises(*)')
     .eq('user_id', auth.userId)
     .order('created_at', { ascending: false });
+
+  if (locationId) {
+    // Strict match: only templates belonging to this location
+    query = query.eq('location_id', locationId);
+  }
+
+  const { data, error } = await query;
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
@@ -34,7 +43,11 @@ export async function POST(req: NextRequest) {
 
   const { data: template, error } = await auth.supabase
     .from('workout_templates')
-    .insert({ user_id: auth.userId, name: body.name })
+    .insert({
+      user_id: auth.userId,
+      name: body.name,
+      ...(body.location_id ? { location_id: body.location_id } : {}),
+    })
     .select()
     .single();
 
