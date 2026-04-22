@@ -8,20 +8,25 @@ interface HealthDashboardProps {
   logWeight: (val: number) => Promise<any>;
   isToday: boolean;
   loading: boolean;
+  stepGoal: number;
 }
 
 /**
  * Renders the health metrics for the user on a selected day.
  */
-export function HealthDashboard({ metrics, weight, lastLoggedWeight, logWeight, isToday, loading }: HealthDashboardProps) {
+export function HealthDashboard({ metrics, weight, lastLoggedWeight, logWeight, isToday, loading, stepGoal }: HealthDashboardProps) {
   if (loading) {
     return (
       <div className="space-y-4 animate-pulse">
-        <div className="h-32 bg-neutral-900 rounded-3xl w-full" />
+        {/* Activity card */}
+        <div className="h-36 bg-neutral-900 rounded-3xl w-full" />
+        {/* Distance + Flights grid */}
         <div className="grid grid-cols-2 gap-4">
           <div className="h-28 bg-neutral-900 rounded-3xl" />
           <div className="h-28 bg-neutral-900 rounded-3xl" />
         </div>
+        {/* Weight card */}
+        <div className="h-32 bg-neutral-900 rounded-3xl w-full" />
       </div>
     );
   }
@@ -44,12 +49,6 @@ export function HealthDashboard({ metrics, weight, lastLoggedWeight, logWeight, 
     );
   }
 
-  // TODO: Move to DB
-  const stepGoal = (() => {
-    if (typeof window === 'undefined') return 10000;
-    const v = parseInt(localStorage.getItem('step_goal') || '', 10);
-    return isNaN(v) || v <= 0 ? 10000 : v;
-  })();
 
   return (
     <div className="space-y-5 animate-slide-up">

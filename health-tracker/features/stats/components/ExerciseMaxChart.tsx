@@ -5,16 +5,12 @@ import { ResponsiveContainer, ComposedChart, Area, Line, XAxis, YAxis, Tooltip, 
 import { useExerciseMaxes } from '../hooks/useExerciseMaxes';
 import { DailyStats } from '../hooks/useStats';
 
-export function ExerciseMaxChart({ days, stats }: { days: number, stats: DailyStats[] }) {
-  const { exercises, selectedExercise, setSelectedExercise, maxData, loading } = useExerciseMaxes(days);
+export function ExerciseMaxChart({ days, stats, locationId }: { days: number, stats: DailyStats[], locationId?: string | null }) {
+  const { exercises, selectedExercise, setSelectedExercise, maxData, loading } = useExerciseMaxes(days, locationId);
   const [showCalories, setShowCalories] = useState(false);
 
   if (loading) {
-    return (
-      <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-5 shadow-sm h-[300px] flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <div className="skeleton h-[300px] w-full rounded-3xl" />;
   }
 
   // Don't show card if no exercises logged

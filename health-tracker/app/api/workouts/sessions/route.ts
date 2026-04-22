@@ -69,7 +69,12 @@ export async function POST(req: NextRequest) {
 
   const { data: session, error } = await auth.supabase
     .from('workout_sessions')
-    .insert({ user_id: auth.userId, template_id: body.template_id, workout_date: body.date })
+    .insert({
+      user_id: auth.userId,
+      template_id: body.template_id,
+      workout_date: body.date,
+      ...(body.location_id ? { location_id: body.location_id } : {}),
+    })
     .select(`*, template:workout_templates(*, exercises:template_exercises(*))`)
     .single();
 

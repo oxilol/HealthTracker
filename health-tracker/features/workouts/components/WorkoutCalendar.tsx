@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useWorkoutCalendar } from '../hooks/useWorkoutCalendar';
 import { todayLocalStr, getFirstDayOfMonth, getDaysInMonth } from '../../../lib/dateUtils';
+import { GymLocation } from '../../../types/gymLocation';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = [
@@ -10,13 +11,30 @@ const MONTHS = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
+// Deterministic color palette for locations
+const LOCATION_COLORS = [
+  'bg-emerald-400',
+  'bg-indigo-400',
+  'bg-amber-400',
+  'bg-rose-400',
+  'bg-cyan-400',
+  'bg-violet-400',
+];
+
 interface WorkoutCalendarProps {
   selectedDate: string;
   onSelectDate: (date: string) => void;
   onClose: () => void;
+  locations?: GymLocation[];
 }
 
-export function WorkoutCalendar({ selectedDate, onSelectDate, onClose }: WorkoutCalendarProps) {
+export function WorkoutCalendar({ selectedDate, onSelectDate, onClose, locations = [] }: WorkoutCalendarProps) {
+  // Build a stable id→index map for color assignment
+  const locationColorMap = new Map<string | null, string>();
+  locations.forEach((loc, i) => {
+    locationColorMap.set(loc.id, LOCATION_COLORS[i % LOCATION_COLORS.length]);
+  });
+  locationColorMap.set(null, 'bg-neutral-500'); // sessions with no location
   const today = new Date();
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [viewYear, setViewYear] = useState(today.getFullYear());
@@ -101,27 +119,38 @@ export function WorkoutCalendar({ selectedDate, onSelectDate, onClose }: Workout
                 const isFuture = dateStr > todayStr;
                 const isToday = dateStr === todayStr;
                 const isSelected = dateStr === selectedDate;
-                const hasWorkout = daySummaries.has(dateStr);
+                const summary = daySummaries.get(dateStr);
+                const hasWorkout = !!summary;
+                const locationIds = summary?.locationIds ?? [];
 
                 return (
                   <button
                     key={day}
                     onClick={() => handleSelectDay(day)}
                     disabled={isFuture}
-                    className={`aspect-square rounded-xl flex flex-col items-center justify-center text-sm transition-all relative ${isFuture
-                      ? 'text-neutral-800 cursor-not-allowed'
-                      : isSelected
-                        ? 'bg-indigo-600 text-white font-bold'
-                        : isToday
-                          ? 'bg-neutral-800 text-neutral-100 font-semibold'
-                          : hasWorkout
-                            ? 'bg-emerald-500/15 text-emerald-400 font-medium'
-                            : 'text-neutral-500 hover:bg-neutral-800/30'
-                      }`}
+                    className={`aspect-square rounded-xl flex flex-col items-center justify-center text-sm transition-all relative ${
+                      isFuture
+                        ? 'text-neutral-800 cursor-not-allowed'
+                        : isSelected
+                          ? 'bg-indigo-600 text-white font-bold'
+                          : isToday
+                            ? 'bg-neutral-800 text-neutral-100 font-semibold'
+                            : hasWorkout
+                              ? 'bg-neutral-800/60 text-neutral-200 font-medium'
+                              : 'text-neutral-500 hover:bg-neutral-800/30'
+                    }`}
                   >
                     {day}
+                    {/* Per-location colored dots */}
                     {hasWorkout && !isSelected && (
-                      <div className="absolute bottom-1 w-1 h-1 rounded-full bg-emerald-400" />
+                      <div className="absolute bottom-1 flex gap-0.5">
+                        {locationIds.map((lid, i) => (
+                          <div
+                            key={i}
+                            className={`w-1 h-1 rounded-full ${locationColorMap.get(lid) ?? 'bg-emerald-400'}`}
+                          />
+                        ))}
+                      </div>
                     )}
                   </button>
                 );
@@ -129,15 +158,30 @@ export function WorkoutCalendar({ selectedDate, onSelectDate, onClose }: Workout
             </div>
           )}
 
-          <div className="flex items-center justify-center gap-5 mt-5 pb-4">
+          <div className="flex items-center justify-center flex-wrap gap-x-4 gap-y-2 mt-5 pb-4">
             <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded bg-emerald-500/15 border border-emerald-500/30" />
-              <span className="text-[11px] text-neutral-500">Trained</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded bg-indigo-600 border border-indigo-500" />
+              <div className="w-3 h-3 rounded bg-indigo-600" />
               <span className="text-[11px] text-neutral-500">Selected</span>
             </div>
+            {locations.length === 0 ? (
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded bg-neutral-800/60" />
+                <span className="text-[11px] text-neutral-500">Trained</span>
+              </div>
+            ) : (
+              locations.map((loc, i) => (
+                <div key={loc.id} className="flex items-center gap-1.5">
+                  <div className={`w-2 h-2 rounded-full ${LOCATION_COLORS[i % LOCATION_COLORS.length]}`} />
+                  <span className="text-[11px] text-neutral-500">{loc.name}</span>
+                </div>
+              ))
+            )}
+            {locations.length > 0 && (
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-neutral-500" />
+                <span className="text-[11px] text-neutral-500">No location</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
