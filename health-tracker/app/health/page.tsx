@@ -5,6 +5,7 @@ import { todayLocalStr, addDays, formatDisplayDate } from '../../lib/dateUtils';
 import { useHealthData } from '../../features/health/hooks/useHealthData';
 import { useWeightData } from '../../features/health/hooks/useWeightData';
 import { useHealthStore } from '../../store/healthStore';
+import { useStepGoal } from '../../features/health/hooks/useStepGoal';
 import { HealthDashboard } from '../../features/health/components/HealthDashboard';
 import { HealthCalendar } from '../../features/health/components/HealthCalendar';
 import { HealthSyncSettingsModal } from '../../features/health/components/HealthSyncSettingsModal';
@@ -21,6 +22,7 @@ export default function HealthPage() {
   const { metrics, loading } = useHealthData(selectedDate);
   const { weight, lastLoggedWeight, logWeight } = useWeightData(selectedDate);
   const { setShowSettingsModal } = useHealthStore();
+  const { stepGoal } = useStepGoal();
 
   const isToday = selectedDate === todayStr;
 
@@ -106,6 +108,7 @@ export default function HealthPage() {
         logWeight={logWeight}
         isToday={isToday}
         loading={loading}
+        stepGoal={stepGoal}
       />
 
       {/* Modals */}
