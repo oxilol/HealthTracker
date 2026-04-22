@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useStats } from '../hooks/useStats';
+import { useLocationStore } from '../../../store/locationStore';
 import { NutritionChart } from './NutritionChart';
 import { WeightChart } from './WeightChart';
 import { ActivityChart } from './ActivityChart';
@@ -17,6 +18,7 @@ const RANGES = [
 export function StatsDashboard() {
   const [days, setDays] = useState(30);
   const { stats, loading } = useStats(days);
+  const { currentLocationId } = useLocationStore();
 
   return (
     <div className="min-h-screen py-6 px-4 space-y-6">
@@ -39,8 +41,12 @@ export function StatsDashboard() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20">
-          <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <div className="space-y-4 pb-12">
+          <div className="skeleton h-64 w-full rounded-3xl" />
+          <div className="skeleton h-64 w-full rounded-3xl" />
+          <div className="skeleton h-48 w-full rounded-3xl" />
+          <div className="skeleton h-48 w-full rounded-3xl" />
+          <div className="skeleton h-48 w-full rounded-3xl" />
         </div>
       ) : stats.length === 0 ? (
         <p className="text-center text-neutral-500 py-10">No data available for this range.</p>
@@ -48,7 +54,7 @@ export function StatsDashboard() {
         <div className="space-y-6 animate-fade-in pb-12">
           {/* Dynamic Interactive Cards First */}
           <DynamicCompareChart data={stats} />
-          <ExerciseMaxChart days={days} stats={stats} />
+          <ExerciseMaxChart days={days} stats={stats} locationId={currentLocationId} />
 
           <div className="w-full h-px bg-gradient-to-r from-transparent via-neutral-800 to-transparent my-6" />
 

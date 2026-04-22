@@ -25,23 +25,32 @@ export async function GET(req: NextRequest) {
   const lastDay = getDaysInMonth(year, month);
   const endDate = `${year}-${monthPadded}-${String(lastDay).padStart(2, '0')}`;
 
-  const table = type === 'cardio' ? 'cardio_sessions' : 'workout_sessions';
-  const dateField = type === 'cardio' ? 'session_date' : 'workout_date';
+  const isGym = type !== 'cardio';
+  const table = isGym ? 'workout_sessions' : 'cardio_sessions';
+  const dateField = isGym ? 'workout_date' : 'session_date';
+  const selectFields = isGym ? `${dateField}, location_id` : dateField;
 
   const { data, error } = await auth.supabase
     .from(table)
-    .select(dateField)
+    .select(selectFields)
     .eq('user_id', auth.userId)
     .gte(dateField, startDate)
     .lte(dateField, endDate);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  const summaryMap: Record<string, { date: string; sessionCount: number }> = {};
+  // Group by date, collect all unique location_ids for that day
+  const summaryMap: Record<string, { date: string; sessionCount: number; locationIds: (string | null)[] }> = {};
   for (const row of data || []) {
     const date = (row as any)[dateField];
-    if (!summaryMap[date]) summaryMap[date] = { date, sessionCount: 0 };
+    if (!summaryMap[date]) summaryMap[date] = { date, sessionCount: 0, locationIds: [] };
     summaryMap[date].sessionCount += 1;
+    if (isGym) {
+      const lid = (row as any).location_id ?? null;
+      if (!summaryMap[date].locationIds.includes(lid)) {
+        summaryMap[date].locationIds.push(lid);
+      }
+    }
   }
 
   return NextResponse.json({ summaries: Object.values(summaryMap) });

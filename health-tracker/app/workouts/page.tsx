@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { todayLocalStr, addDays, formatDisplayDate } from '../../lib/dateUtils';
+import { useLocationStore } from '../../store/locationStore';
+import { getToken } from '../../lib/getToken';
 
 // Gym imports
 import { useWorkoutTemplates } from '../../features/workouts/hooks/useWorkoutTemplates';
@@ -12,11 +14,13 @@ import { CreateTemplateForm } from '../../features/workouts/components/CreateTem
 import { WorkoutSessionView } from '../../features/workouts/components/WorkoutSessionView';
 import { WorkoutCalendar } from '../../features/workouts/components/WorkoutCalendar';
 import { TemplateSettingsModal } from '../../features/workouts/components/TemplateSettingsModal';
+import { LocationPickerModal } from '../../features/workouts/components/LocationPickerModal';
 import { WorkoutTemplate } from '../../types/workout';
 
 // Cardio imports
 import { useCardioTemplates } from '../../features/workouts/hooks/useCardioTemplates';
 import { useCardioSession } from '../../features/workouts/hooks/useCardioSession';
+import { useGymLocations } from '../../features/workouts/hooks/useGymLocations';
 import { CardioTemplateList } from '../../features/workouts/components/CardioTemplateList';
 import { CreateCardioTemplateForm } from '../../features/workouts/components/CreateCardioTemplateForm';
 import { CardioSessionView } from '../../features/workouts/components/CardioSessionView';
@@ -34,9 +38,28 @@ export default function WorkoutsPage() {
   const [mode, setMode] = useState<Mode>('gym');
   const [selectedDate, setSelectedDate] = useState(todayStr);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
 
-  // Gym data
-  const { templates, loading: templatesLoading, deleteTemplate } = useWorkoutTemplates();
+  // Active gym location (global store — initialized from profile on mount)
+  const { currentLocationId, setCurrentLocationId } = useLocationStore();
+
+  // Initialize location from profile on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+        const res = await fetch('/api/profile', { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.current_location_id) setCurrentLocationId(data.current_location_id);
+      } catch { /* no-op */ }
+    })();
+  }, [setCurrentLocationId]);
+
+  // Gym data — filtered by active location
+  const { templates, loading: templatesLoading, deleteTemplate } = useWorkoutTemplates(currentLocationId);
+  const { locations } = useGymLocations();
   const {
     sessions,
     sets,
@@ -105,6 +128,10 @@ export default function WorkoutsPage() {
     else setShowCardioSettings(true);
   };
 
+  // Location display name for the badge
+  const activeLocation = locations.find((l) => l.id === currentLocationId);
+  const locationLabel = activeLocation?.name ?? 'All';
+
   const gymContent = isLoading ? (
     <div className="space-y-3">
       {[1, 2, 3].map((i) => <div key={i} className="skeleton h-20 w-full rounded-3xl" />)}
@@ -125,9 +152,10 @@ export default function WorkoutsPage() {
       <p className="text-sm font-medium text-neutral-400 mb-2">Start a workout today</p>
       <TemplateList
         templates={templates}
-        onStart={(t: WorkoutTemplate) => startSession(t)}
+        onStart={(t: WorkoutTemplate) => startSession(t, currentLocationId ?? undefined)}
         onEdit={setEditingTemplate}
         onDelete={deleteTemplate}
+        locationFiltered={!!currentLocationId}
       />
     </div>
   ) : (
@@ -168,16 +196,31 @@ export default function WorkoutsPage() {
         {/* Title + settings */}
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-tight text-neutral-100">Train</h1>
-          <button
-            onClick={handleOpenSettings}
-            className="p-2 text-neutral-500 hover:text-indigo-400 transition-colors active:scale-90"
-            aria-label="Settings"
-          >
+          <div className="flex items-center gap-2">
+            {/* Location badge */}
+            {mode === 'gym' && (
+              <button
+                onClick={() => setShowLocationPicker(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-800/80 border border-neutral-700 text-xs font-medium text-neutral-300 hover:border-indigo-500/40 hover:text-indigo-300 transition-all active:scale-95"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                </svg>
+                {locationLabel}
+              </button>
+            )}
+            <button
+              onClick={handleOpenSettings}
+              className="p-2 text-neutral-500 hover:text-indigo-400 transition-colors active:scale-90"
+              aria-label="Settings"
+            >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738a1.125 1.125 0 0 1-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527a1.125 1.125 0 0 1-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
             </svg>
-          </button>
+            </button>
+          </div>
         </div>
 
         {/* Mode toggle */}
@@ -249,12 +292,18 @@ export default function WorkoutsPage() {
       <CardioSettingsModal />
       <CreateCardioTemplateForm />
 
+      {/* Location picker */}
+      {showLocationPicker && (
+        <LocationPickerModal onClose={() => setShowLocationPicker(false)} />
+      )}
+
       {/* Calendar */}
       {showCalendar && mode === 'gym' && (
         <WorkoutCalendar
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
           onClose={() => setShowCalendar(false)}
+          locations={locations}
         />
       )}
       {showCalendar && mode === 'cardio' && (

@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useWeeklyData } from '../features/health/hooks/useWeeklyData';
+
 import { useNutritionGoals } from '../features/nutrition/hooks/useNutritionGoals';
 import { useUserStore } from '../store/userStore';
+import { useStepGoal } from '../features/health/hooks/useStepGoal';
 import { SignOutSection } from '../features/auth/components/SignOutSection';
 import { todayLocalStr, getMostRecentSaturday, addWeeks, formatWeekRange } from '../lib/dateUtils';
 
@@ -15,15 +17,6 @@ function getGreeting() {
 }
 
 const DAY_LABELS = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-
-const STEP_GOAL_KEY = 'step_goal';
-const DEFAULT_STEP_GOAL = 10000;
-
-function readStepGoal(): number {
-  if (typeof window === 'undefined') return DEFAULT_STEP_GOAL;
-  const parsedValue = parseInt(localStorage.getItem(STEP_GOAL_KEY) || '', 10);
-  return isNaN(parsedValue) || parsedValue <= 0 ? DEFAULT_STEP_GOAL : parsedValue;
-}
 
 // Skeleton 
 
@@ -159,23 +152,15 @@ export default function DashboardPage() {
   const todayStr = todayLocalStr();
   const currentWeekSat = useMemo(() => getMostRecentSaturday(), []);
   const [weekSat, setWeekSat] = useState(currentWeekSat);
-  const [stepGoal, setStepGoalState] = useState(DEFAULT_STEP_GOAL);
 
   // User profile, weekly data hook, and nutrition goals
   const user = useUserStore((s) => s.user);
   const { days, loading: weekLoading } = useWeeklyData(weekSat);
   const { goals } = useNutritionGoals();
+  const { stepGoal } = useStepGoal();
 
   const calorieGoal = goals?.calorie_goal ?? 2000;
   const proteinGoal = goals?.protein_goal ?? 150;
-
-  useEffect(() => {
-    setStepGoalState(readStepGoal());
-    // also listen for cross-tab storage changes (e.g. when settings modal writes)
-    const handler = () => setStepGoalState(readStepGoal());
-    window.addEventListener('storage', handler);
-    return () => window.removeEventListener('storage', handler);
-  }, []);
 
   const greeting = useMemo(() => getGreeting(), []);
   const displayName = useMemo(() => {

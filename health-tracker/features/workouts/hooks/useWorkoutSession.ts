@@ -39,14 +39,18 @@ export function useWorkoutSession(date?: string) {
 
   useEffect(() => { fetchSessions(); }, [fetchSessions]);
 
-  const startSession = async (template: WorkoutTemplate) => {
+  const startSession = async (template: WorkoutTemplate, locationId?: string) => {
     const token = await getToken();
     if (!token) return null;
 
     const res = await fetch('/api/workouts/sessions', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ template_id: template.id, date: sessionDate }),
+      body: JSON.stringify({
+        template_id: template.id,
+        date: sessionDate,
+        ...(locationId ? { location_id: locationId } : {}),
+      }),
     });
     if (!res.ok) return null;
 

@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useWorkoutStore } from '../../../store/workoutStore';
 import { useWorkoutTemplates } from '../hooks/useWorkoutTemplates';
+import { useLocationStore } from '../../../store/locationStore';
+import { useGymLocations } from '../hooks/useGymLocations';
 
 interface ExerciseEntry {
   exercise_name: string;
@@ -12,6 +14,8 @@ interface ExerciseEntry {
 export function CreateTemplateForm() {
   const { showCreateTemplate, editingTemplate, setShowCreateTemplate, setEditingTemplate } = useWorkoutStore();
   const { createTemplate, updateTemplate } = useWorkoutTemplates();
+  const { currentLocationId } = useLocationStore();
+  const { locations } = useGymLocations();
 
   const [name, setName] = useState('');
   const [exercises, setExercises] = useState<ExerciseEntry[]>([]);
@@ -79,7 +83,7 @@ export function CreateTemplateForm() {
     if (isEditing && editingTemplate) {
       await updateTemplate(editingTemplate.id, name.trim(), exercises);
     } else {
-      await createTemplate(name.trim(), exercises);
+      await createTemplate(name.trim(), exercises, currentLocationId);
     }
 
     setSaving(false);
@@ -97,8 +101,16 @@ export function CreateTemplateForm() {
             </svg>
           </button>
           <h2 className="text-lg font-semibold text-neutral-100">
-            {isEditing ? 'Edit Template' : 'Create Template'}
+            {isEditing ? 'Edit Template' : 'New Template'}
           </h2>
+          {!isEditing && currentLocationId && (() => {
+            const loc = locations.find((l) => l.id === currentLocationId);
+            return loc ? (
+              <span className="ml-auto text-[11px] font-medium text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-full">
+                📍 {loc.name}
+              </span>
+            ) : null;
+          })()}
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 pb-6 space-y-4">

@@ -239,34 +239,36 @@ export function FoodSearchModal({ onLogFood, onSaveAPIFood }: FoodSearchModalPro
                   </div>
                 )}
 
-                <div className="space-y-2">
-                  {results.map((food, i) => (
-                    <button
-                      key={`${food.name}-${i}`}
-                      onClick={() => handleSelectAPIFood(food)}
-                      className="w-full text-left bg-neutral-900 border border-neutral-800 rounded-2xl p-4 hover:border-neutral-700 transition-all active:scale-[0.98] animate-fade-in-up"
-                      style={{ animationDelay: `${i * 30}ms` }}
-                    >
-                      <p className="text-sm font-medium text-neutral-200 truncate">{food.name}</p>
-                      <div className="flex items-center gap-3 mt-1.5">
-                        <span className="text-xs font-semibold text-indigo-400">{food.calories} cal</span>
-                        <div className="flex items-center gap-1">
-                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                          <span className="text-[11px] text-emerald-400/80">{food.protein}g</span>
+                {!loading && (
+                  <div className="space-y-2">
+                    {results.map((food, i) => (
+                      <button
+                        key={`${food.name}-${i}`}
+                        onClick={() => handleSelectAPIFood(food)}
+                        className="w-full text-left bg-neutral-900 border border-neutral-800 rounded-2xl p-4 hover:border-neutral-700 transition-all active:scale-[0.98] animate-fade-in-up"
+                        style={{ animationDelay: `${i * 30}ms` }}
+                      >
+                        <p className="text-sm font-medium text-neutral-200 truncate">{food.name}</p>
+                        <div className="flex items-center gap-3 mt-1.5">
+                          <span className="text-xs font-semibold text-indigo-400">{food.calories} cal</span>
+                          <div className="flex items-center gap-1">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                            <span className="text-[11px] text-emerald-400/80">{food.protein}g</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                            <span className="text-[11px] text-amber-400/80">{food.carbohydrates}g</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                            <span className="text-[11px] text-red-400/80">{food.fat}g</span>
+                          </div>
+                          <span className="text-[10px] text-neutral-600 ml-auto">per 100g</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                          <span className="text-[11px] text-amber-400/80">{food.carbohydrates}g</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
-                          <span className="text-[11px] text-red-400/80">{food.fat}g</span>
-                        </div>
-                        <span className="text-[10px] text-neutral-600 ml-auto">per 100g</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 {!loading && results.length > 0 && (
                   <p className="text-center text-neutral-700 text-[10px] pt-3">
